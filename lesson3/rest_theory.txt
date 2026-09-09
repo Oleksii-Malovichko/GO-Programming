@@ -1,0 +1,109 @@
+REST - это способ договорится: как клиент и сервер будут общаться друг с другом через HTTP
+
+можно придумать API:
+/getAllProducts
+/getProduct?id=5
+/createProduct
+/updateProduct
+/deleteProduct?id=5
+
+Это будет работать, однако, REST предлагает более системный подход:
+GET		/products
+GET		/products/5
+POST	/products
+PUT		/products/5
+DELETE	/products/5
+
+Идея REST:
+- в REST есть понятие ресурса.
+Например:
+/products
+/users
+/orders
+
+- а конкретный объект: -> конкретный ресурс
+/products/5
+/users/42
+/orders/123
+
+HTTP метод говорит, что мы хотим сделать с ресурсом
+GET -> получить
+POST -> создать
+PUT -> заменить/добавить
+PATCH -> частично изменить
+DELETE -> удалить
+
+Пример в GO:
+func productsHandler(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+		case http.MethodGet:
+			fmt.Fprintf(w, "get products")
+		case http.MethodPost:
+			fmt.Fprintf(w, "create product")
+		case http.MethodDelete:
+			fmt.Fprintf(w, "delete product")
+	}
+}
+
+и затем регистрируем:
+	mux.Handle("/products", http.HandlerFunc(productsHandler))
+
+Получается:
+GET /products
+      ↓
+ServeMux
+      ↓
+productsHandler
+      ↓
+r.Method == GET
+      ↓
+получаем товары
+
+REST не заменяет net/http
+REST - это то, как я проектирую API, а net/http - инструменты, которыми я это API реализую
+
+
+Также, REST - это НЕ JSON. REST может возвращать: JSON, XML, HTML, text/plain
+
+
+Значение слова stateless.
+Каждый запрос должен содержать достаточно информации для его обработки (быть независимым) (именно поэтому там повторяется одна и та же информация.
+Сервер НЕ должен угадывать, кто отправил запрос. В запросе вся информация должна быть указана и запрос по сути должен быть самостоятельным)
+
+
+HTTP-коды. Они упращают ответы для клиентов
+например:
+200 OK - все хорошо
+201 CREATED - ресурс создан
+400 Bad Request - клиент прислал неправильные данные
+401 Unauthorized - нужна аутентификация
+403 Forbidden - доступ запрещен
+404 Not Found - ресурс не найден
+500 Internal Server Error - ошибка сервера
+
+
+REST API - как контракт. Он облегчает совместную работу между frontend и backend
+
+Держать в голове:
+REST
+ ↓
+ресурсы + HTTP-методы + HTTP-коды
+
+Например:
+RESOURCE
+/products/42
+
+GET     → получить
+POST    → создать
+PUT     → заменить
+PATCH   → изменить часть
+DELETE  → удалить
+
+А Go:
+net/http
+   ↓
+реализует HTTP
+   ↓
+ты строишь поверх него
+   ↓
+REST API

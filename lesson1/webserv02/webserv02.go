@@ -7,7 +7,23 @@ import (
 	"net/http"
 )
 
-func main(){
+func handler(w http.ResponseWriter, rw *http.Request) {
+	d, err := io.ReadAll(rw.Body)
+	if err != nil {
+		log.Printf("Error reading body: %v\n", err) // 2026/09/07 10:21:25 Error reading body: unexpected EOF
+		w.WriteHeader(http.StatusBadRequest)
+		return 
+	}
+	log.Printf("Data: %s\n", d)
+	fmt.Fprintf(w, "\nHello %s\n\n", d)
+}
+
+func main() {
+	http.HandleFunc("/", handler)
+	http.ListenAndServe(":5050", nil)
+}
+
+/* func main(){
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		d, err := io.ReadAll(r.Body) // get data from body
 		if err != nil {
@@ -17,7 +33,7 @@ func main(){
 		fmt.Fprintf(w, "Hello %s\n", d) // send msg to client
 	})
 	http.ListenAndServe(":5050", nil)
-}
+} */
 
 /* 
 тут идет упоминания о случае, когда может произойти ошибка */
