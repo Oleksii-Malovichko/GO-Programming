@@ -15,7 +15,7 @@ func NewGoodBye(l *log.Logger) *Goodbye {
 	return &Goodbye{l}
 }
 
-func (gh *Goodbye) ServerHTTP(rw http.ResponseWriter, r *http.Request) {
+func (gh *Goodbye) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	gh.l.Println("Handle Goodbye requests")
 
 	b, err := io.ReadAll(r.Body)

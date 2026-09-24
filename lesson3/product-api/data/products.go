@@ -1,16 +1,35 @@
 package data
 
-import "time"
+import (
+	"time"
+	"io"
+	"encoding/json"
+)
 
+/* 
+Examples of struct  */
+
+// Product defines the structure for an API product
 type Product struct {
-	ID int
-	Name string
-	Description string
-	Price float32
-	SKU string // internal product id
-	CreatedOn string
-	UpdatedOn string
-	DeletedOn string
+	ID			int `json:"id"`
+	Name		string `json:"name"` // to lowercase
+	Description	string `json:"description"`
+	Price		float32 `json:"price"`
+	SKU			string `json:"sku"` // internal product id
+	CreatedOn	string `json:"-"` // удалить для показа клиенту
+	UpdatedOn	string `json:"-"`
+	DeletedOn	string `json:"-"`
+}
+
+type Products []*Product
+
+func (p*Products) ToJSON(w io.Writer) error {
+	e := json.NewEncoder(w)
+	return e.Encode(p)
+}
+
+func GetProducts() Products {
+	return productList
 }
 
 var productList = []*Product{
