@@ -1,11 +1,13 @@
+package main
+
 import (
-	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
-	"time"
 	"product-api/handlers"
+	"time"
 )
 
 var bindAddress = ":5555"
@@ -17,17 +19,14 @@ func main() {
 	}
 
 	l := log.New(os.Stdout, "products-api", log.LstdFlags)
-	// l.Println("server started")
 
-	hh := handlers.NewHello(l)
-	gh := handlers.NewGoodBye(l)
+	ph := handlers.NewProducts(l)
 
-	sm := http.NewServeMux
-	sm.Handle("/", hh)
-	sm.Handle("/goodbye", gh)
+	sm := http.NewServeMux()
+	sm.Handle("/", ph)
 
 	s := http.Server {
-		Addr: *bindAddress,
+		Addr: bindAddress,
 		Handler: sm,
 		ErrorLog: l,
 		ReadTimeout: 5 * time.Second,
@@ -35,4 +34,19 @@ func main() {
 		IdleTimeout: 120 * time.Second,
 	}
 
+	go func() {
+		fmt.Printf("Starting the server on port %s\n", bindAddress)
+
+		err := s.ListenAndServe()
+		if err != nil {
+			l.Printf("Error starting server: %s\n", err)
+			os.Exit(1)
+		}
+	}()
+
+	// trap sigterm or interupt and gracefully shutdown the server
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	<-c // 
+	l.Println("Shutting down server")
 }
